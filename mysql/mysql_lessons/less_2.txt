@@ -1,0 +1,38 @@
+Урок 2 - Аржанов
+
+Установите СУБД MySQL. 
+
+Установлена и подключена (прошлый урок).
+
+Создайте в домашней директории файл .my.cnf, задав в нем логин и пароль, который указывался при установке.
+
+cd ~
+cat > .my.сnf
+[client]
+user=root
+password=any
+
+Создайте базу данных example, разместите в ней таблицу users, состоящую из двух столбцов, числового id и строкового name.
+
+mysql
+CREATE DATABASE example;
+\u 'example';
+CREATE TABLE users 
+(id int unsigned AUTO_INCREMENT, 
+name char(40) NOT NULL, 
+PRIMARY KEY (id)) 
+comment = 'Таблица пользователей базы';
+
+Создайте дамп базы данных example из предыдущего задания, разверните содержимое дампа в новую базу данных sample.
+\q
+mysqldump example > ~/mysql/les_2_dump.sql
+mysql
+CREATE DATABASE sample;
+\q
+mysqldump sample < ~/mysql/les_2_dump.sql
+
+(по желанию) Ознакомьтесь более подробно с документацией утилиты mysqldump. 
+Создайте дамп единственной таблицы help_keyword базы данных mysql. 
+Причем добейтесь того, чтобы дамп содержал только первые 100 строк таблицы.
+
+mysqldump mysql help_keyword --where='true limit 100' > ~/mysql/les_2_hk_dump.sql
