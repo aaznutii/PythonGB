@@ -1,83 +1,182 @@
-SELECT * FROM users LIMIT 10;
-SELECT * FROM profiles LIMIT 10;
-UPDATE profiles set gender = ' ';
-SELECT * FROM profiles p LIMIT 10;
+-- Тема Операции, задание 1
+-- Пусть в таблице users поля created_at и updated_at оказались незаполненными.
+-- Заполните их текущими датой и временем.
+DROP TABLE IF EXISTS users;
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) COMMENT 'Имя покупателя',
+  birthday_at DATE COMMENT 'Дата рождения',
+  created_at DATETIME,
+  updated_at DATETIME
+) COMMENT = 'Покупатели';
 
-CREATE TEMPORARY TABLE genders (name CHAR(1));
-INSERT INTO genders VALUES ("F"), ("M");
-SELECT * FROM genders;
-
-SELECT RAND();
-SELECT name FROM genders ORDER BY RAND() LIMIT 10;
-UPDATE profiles set gender = 
-	(SELECT name FROM genders ORDER BY RAND() LIMIT 1);
-SELECT * FROM profiles p LIMIT 10;
-DESC users;
-UPDATE users SET updated_at = NOW() WHERE updated_at < created_at;
-SELECT * FROM users LIMIT 10;
-DESC profiles;
-SELECT * FROM profiles LIMIT 10;
-ALTER TABLE profiles MODIFY COLUMN gender ENUM('M', 'F');
-UPDATE PROFILES set city_id  = FLOOR(1 + RAND() * 100);
-DESC media;
-SELECT * FROM media LIMIT 10;
-UPDATE media SET user_id = FLOOR(1 + RAND() * 100);
-CREATE TEMPORARY TABLE extensions (name VARCHAR(10));
-INSERT INTO extensions VALUES ('jpeg'), ('mp4'), ('mp3'), ('avi'), ('png'), ('mpeg');
-SELECT * FROM extensions;
-UPDATE media SET filename = CONCAT(
-  'http://dropbox.net/vk/',
-  filename,
-  '.',
-  (SELECT name FROM extensions ORDER BY RAND() LIMIT 1)
-);
-UPDATE media SET size = FLOOR(10000 + (RAND() * 1000000)) 
-	WHERE size < 1000;
-UPDATE media SET metadata = CONCAT('{"owner":"', 
-  (SELECT CONCAT(first_name, ' ', last_name) FROM users WHERE id = user_id),
-  '"}');
- ALTER TABLE media MODIFY COLUMN metadata JSON;
-SELECT * FROM media_types;
-DELETE FROM media_types;
-INSERT INTO media_types (name) VALUES
-  ('photo'),
-  ('video'),
-  ('audio')
-;
-TRUNCATE media_types;
-SELECT * FROM media LIMIT 10;
-UPDATE media SET media_type_id = FLOOR(1 + RAND() * 3);
-DESC friendship;
-SELECT * FROM friendship LIMIT 10;
-UPDATE friendship SET 
-  user_id = FLOOR(1 + RAND() * 100),
-  friend_id = FLOOR(1 + RAND() * 100);
-UPDATE friendship SET friend_id = friend_id + 1 
-  WHERE user_id = friend_id;
-SELECT * FROM friendship_statuses;
-TRUNCATE friendship_statuses;
-INSERT INTO friendship_statuses (name) VALUES
-  ('Requested'),
-  ('Confirmed'),
-  ('Rejected');
-UPDATE friendship SET friendship_status_id = FLOOR(1 + RAND() * 3);
-DESC communities;
-SELECT * FROM communities;
-DELETE FROM communities WHERE id > 40;
-SELECT * FROM communities_users;
-TRUNCATE communities_users;
-UPDATE communities_users SET
-  user_id = FLOOR(1 + RAND() * 100),
-  community_id = FLOOR(1 + RAND() * 40);
-SHOW TABLES;
-SELECT * FROM MESSAGES;
-UPDATE MESSAGES SET 
-  FROM_USER_ID = FLOOR(1 + RAND() * 100),
-  TO_USER_ID = FLOOR(1 + RAND() * 100);
+INSERT INTO
+  users (name, birthday_at, created_at, updated_at)
+VALUES
+  ('Геннадий', '1990-10-05', NULL, NULL),
+  ('Наталья', '1984-11-12', NULL, NULL),
+  ('Александр', '1985-05-20', NULL, NULL),
+  ('Сергей', '1988-02-14', NULL, NULL),
+  ('Иван', '1998-01-12', NULL, NULL),
+  ('Мария', '2006-08-29', NULL, NULL);
   
--- Если выбирать собственную разработку можно, то я хотел бы создать 
--- базу для ведения оборота первичных данных по основным рабочим процессам.
--- Я недавно возглавил институт образовательной организации - таблиц будет много.
+UPDATE 
+  users 
+SET 
+  updated_at = NOW(), 
+  created_at = NOW();
+SELECT * from users; 
+  
+-- Тема Операции, задание 2
+-- Таблица users была неудачно спроектирована.
+-- Записи created_at и updated_at были заданы типом VARCHAR и в них долгое время помещались
+-- значения в формате "20.10.2017 8:10".
+-- Необходимо преобразовать поля к типу DATETIME, сохранив введеные ранее значения.
+DROP TABLE IF EXISTS users;
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) COMMENT 'Имя покупателя',
+  birthday_at DATE COMMENT 'Дата рождения',
+  created_at VARCHAR(255),
+  updated_at VARCHAR(255)
+) COMMENT = 'Покупатели';
+
+
+
+INSERT INTO
+  users (name, birthday_at, created_at, updated_at)
+VALUES
+  ('Геннадий', '1990-10-05', '07.01.2016 12:05', '07.01.2016 12:05'),
+  ('Наталья', '1984-11-12', '20.05.2016 16:32', '20.05.2016 16:32'),
+  ('Александр', '1985-05-20', '14.08.2016 20:10', '14.08.2016 20:10'),
+  ('Сергей', '1988-02-14', '21.10.2016 9:14', '21.10.2016 9:14'),
+  ('Иван', '1998-01-12', '15.12.2016 12:45', '15.12.2016 12:45'),
+  ('Мария', '2006-08-29', '12.01.2017 8:56', '12.01.2017 8:56');
+
+SELECT * FROM users;
+desc USERS;
+
+UPDATE 
+  USERS 
+set
+  created_at = STR_TO_DATE(created_at, '%d.%m.%Y %k:%i'),
+  updated_at = STR_TO_DATE(updated_at, '%d.%m.%Y %k:%i');
+
+ALTER TABLE 
+  users 
+CHANGE 
+  created_at created_at DATETIME default CURRENT_TIMESTAMP;
+  
+ALTER TABLE 
+  users 
+CHANGE 
+  updated_at updated_at DATETIME default CURRENT_TIMESTAMP;
+  
+SELECT * FROM users;
+desc USERS;
+
+-- Тема Операции, задание 3
+-- В таблице складских запасов storehouses_products в поле value могут встречаться самые
+-- разные цифры: 0, если товар закончился и выше нуля, если на складе имеются запасы.
+-- Необходимо отсортировать записи таким образом, чтобы они выводились в порядке увеличения
+-- значения value. Однако, нулевые запасы должны выводиться в конце, после всех записей.
+DROP TABLE IF EXISTS storehouses_products;
+CREATE TABLE storehouses_products (
+  id SERIAL PRIMARY KEY,
+  storehouse_id INT UNSIGNED,
+  product_id INT UNSIGNED,
+  value INT UNSIGNED COMMENT 'Запас товарной позиции на складе',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) COMMENT = 'Запасы на складе';
+
+INSERT INTO
+  storehouses_products (storehouse_id, product_id, value)
+VALUES
+  (1, 543, 0),
+  (1, 789, 2500),
+  (1, 3432, 0),
+  (1, 826, 30),
+  (1, 719, 500),
+  (1, 638, 1);
+
+  SELECT 
+    * 
+  FROM 
+    storehouses_products
+  order by
+    value = 0, value;
+    
+
+-- Тема Операции, задание 4
+-- (по желанию) Из таблицы users необходимо извлечь пользователей, родившихся в
+-- августе и мае. Месяцы заданы в виде списка английских названий ('may', 'august')
+
+-- Таблица users создана для задания 2 темы Операции
+
+SELECT * FROM users;
+
+desc USERS;
+SELECT 
+  name
+FROM 
+  users 
+WHERE 
+  MONTHNAME(birthday_at) IN ('may', 'august');
+
+-- Тема Операции, задание 5
+-- (по желанию) Из таблицы catalogs извлекаются записи при помощи запроса.
+-- SELECT * FROM catalogs WHERE id IN (5, 1, 2);
+-- Отсортируйте записи в порядке, заданном в списке IN.
+
+DROP TABLE IF EXISTS catalogs;
+CREATE TABLE catalogs (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL
+) COMMENT = 'Каталог';
+
+INSERT INTO catalogs VALUES
+  (NULL, 'Процессоры'),
+  (NULL, 'Материнские платы'),
+  (NULL, 'Видеокарты'),
+  (NULL, 'Жесткие диски'),
+  (NULL, 'Оперативная память');
+
+SELECT 
+  * 
+FROM 
+  catalogs 
+WHERE 
+  id IN (5, 1, 2)
+ORDER BY 
+  FIELD(id, 5, 1, 2);
+-- Тема Агрегация, задание 1
+-- Подсчитайте средний возраст пользователей в таблице users
+
+-- Таблица users создана для задания 2 темы Операции
  
--- Если не выбирать - я хотел бы создать БД по данным hh.ru
- 
+  SELECT 
+    AVG(2021 - SUBSTRING(birthday_at, 1, 4)) 
+  FROM users; 
+	  
+-- Тема Агрегация, задание 2
+-- Подсчитайте количество дней рождения, которые приходятся на каждый из дней недели.
+-- Следует учесть, что необходимы дни недели текущего года, а не года рождения.
+
+  
+-- Таблица users создана для задания 2 темы Операции
+
+SELECT 
+  DAYNAME(birthday_at + INTERVAL (2021 - SUBSTRING(birthday_at, 1, 4)) YEAR),
+  COUNT(DAYNAME(birthday_at + INTERVAL (2021 - SUBSTRING(birthday_at, 1, 4)) YEAR)) 
+FROM 
+  users
+group by
+    DAYNAME(birthday_at + INTERVAL (2021 - SUBSTRING(birthday_at, 1, 4)) YEAR);
+
+-- Тема Агрегация, задание 3
+-- (по желанию) Подсчитайте произведение чисел в столбце таблицы
+
+-- Используйте таблицу catalogs, созданную для задания 5 темы Операции
+  
+
