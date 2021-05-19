@@ -1,0 +1,44 @@
+
+-- 3. Определить кто больше поставил лайков (всего) - мужчины или женщины?
+
+SELECT
+  COUNT(LIKES.ID) AS 'ЧИСЛО ЛАЙКОВ',
+  PROFILES.GENDER
+FROM  
+  LIKES
+  left join PROFILES on LIKES.USER_ID = PROFILES.USER_ID
+GROUP BY
+  PROFILES.GENDER;
+
+-- 4. Вывести для каждого пользователя количество созданных сообщений, постов,
+-- загруженных медиафайлов и поставленных лайков.
+
+
+SELECT 
+  CONCAT(USERS.FIRST_NAME, ' ', USERS.LAST_NAME) AS FULL_NAME,
+  COUNT(DISTINCT(MESSAGES.ID)) AS COUNT_MESSAGES,
+  COUNT(DISTINCT(POSTS.ID)) AS COUNT_POSTS,
+  COUNT(DISTINCT(MEDIA.ID)) AS COUNT_MEDIA,
+  COUNT(DISTINCT(LIKES.ID)) AS COUNT_LIKES
+FROM 
+  USERS 
+  LEFT JOIN MESSAGES ON USERS.ID = MESSAGES.FROM_USER_ID
+  LEFT JOIN POSTS ON USERS.ID = POSTS.USER_ID
+  LEFT JOIN MEDIA ON USERS.ID = MEDIA.USER_ID
+  LEFT JOIN LIKES ON USERS.ID = LIKES.USER_ID
+GROUP BY 
+  USERS.ID;
+
+
+  -- 5. (по желанию) Подсчитать количество лайков которые получили 10 самых последних сообщений.
+
+
+SELECT 
+  COUNT(*)
+FROM 
+  LIKES
+  LEFT JOIN MESSAGES ON TARGET_ID = MESSAGES.ID
+WHERE TARGET_TYPE = 'MESSAGES' AND TARGET_ID IN (SELECT * FROM (
+      SELECT ID FROM MESSAGES 
+        ORDER BY CREATED_AT DESC LIMIT 10) AS SORTED_MESSAGES);
+  
