@@ -1,0 +1,39 @@
+SELECT FIRST_NAME, EMAIL, BIRTHDAY, CITIES.NAME
+    FROM USERS 
+    INNER JOIN PROFILES ON USERS.ID = PROFILES.USER_ID
+    INNER JOIN CITIES ON CITIES.ID  = PROFILES.CITY_ID
+WHERE USERS.ID = 7;
+
+
+desc media;
+
+SELECT DISTINCT FIRST_NAME, media.id, FRIENDSHIP.USER_ID
+    FROM USERS 
+    JOIN MEDIA ON USERS.ID = media.USER_ID
+    JOIN FRIENDSHIP on USERS.ID = FRIENDSHIP.USER_ID 
+      OR USERS.ID = FRIENDSHIP.FRIEND_ID  
+WHERE USERS.ID = 7;
+
+SELECT user_id, friend_id 
+FROM friendship 
+WHERE USER_ID = 7 or FRIEND_ID  = 7;
+
+SELECT messages.BODY , users.FIRST_NAME 
+FROM MESSAGES
+join
+USERS
+on USERS.ID = messages.TO_USER_ID 
+WHERE 
+messages.TO_USER_ID =7;
+
+SELECT users.id, users.first_name, 
+count(friendship.CREATED_AT) count_friend
+FROM USERS 
+    left join FRIENDSHIP
+    on Users.ID = FRIENDSHIP.user_id
+    or Users.ID = FRIENDSHIP.FRIEND_ID
+GROUP BY users.id
+ORDER BY count_friend desc;
+
+
+    
