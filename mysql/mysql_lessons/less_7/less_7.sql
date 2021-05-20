@@ -1,5 +1,5 @@
--- 1.   Составьте список пользователей users, которые осуществили хотя 
--- бы один заказ orders в интернет магазине. (Добавил подсчет числа заказов для красоты и соответственно группировку)
+-- 1.   РЎРѕСЃС‚Р°РІСЊС‚Рµ СЃРїРёСЃРѕРє РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ users, РєРѕС‚РѕСЂС‹Рµ РѕСЃСѓС‰РµСЃС‚РІРёР»Рё С…РѕС‚СЏ 
+-- Р±С‹ РѕРґРёРЅ Р·Р°РєР°Р· orders РІ РёРЅС‚РµСЂРЅРµС‚ РјР°РіР°Р·РёРЅРµ. (Р”РѕР±Р°РІРёР» РїРѕРґСЃС‡РµС‚ С‡РёСЃР»Р° Р·Р°РєР°Р·РѕРІ РґР»СЏ РєСЂР°СЃРѕС‚С‹ Рё СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ РіСЂСѓРїРїРёСЂРѕРІРєСѓ)
 SELECT 
   NAME,
   COUNT(ORDERS.ID) AS COUNT_OF_ORDERS
@@ -8,7 +8,7 @@ FROM
   JOIN ORDERS ON USERS.ID = ORDERS.USER_ID
 GROUP BY NAME;
 
--- 2.  Выведите список товаров products и разделов catalogs, который соответствует товару.
+-- 2.  Р’С‹РІРµРґРёС‚Рµ СЃРїРёСЃРѕРє С‚РѕРІР°СЂРѕРІ products Рё СЂР°Р·РґРµР»РѕРІ catalogs, РєРѕС‚РѕСЂС‹Р№ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ С‚РѕРІР°СЂСѓ.
  
 SELECT 
   P.NAME, C.NAME 
@@ -17,17 +17,17 @@ FROM
   LEFT JOIN CATALOGS AS C 
   ON P.CATALOG_ID = C.ID;
   
--- 3.   (по желанию) Пусть имеется таблица рейсов flights (id, from, to) и таблица городов cities (label, name). 
--- Поля from, to и label содержат английские названия городов, поле name — русское. 
--- Выведите список рейсов flights с русскими названиями городов.
+-- 3.   (РїРѕ Р¶РµР»Р°РЅРёСЋ) РџСѓСЃС‚СЊ РёРјРµРµС‚СЃСЏ С‚Р°Р±Р»РёС†Р° СЂРµР№СЃРѕРІ flights (id, from, to) Рё С‚Р°Р±Р»РёС†Р° РіРѕСЂРѕРґРѕРІ cities (label, name). 
+-- РџРѕР»СЏ from, to Рё label СЃРѕРґРµСЂР¶Р°С‚ Р°РЅРіР»РёР№СЃРєРёРµ РЅР°Р·РІР°РЅРёСЏ РіРѕСЂРѕРґРѕРІ, РїРѕР»Рµ name вЂ” СЂСѓСЃСЃРєРѕРµ. 
+-- Р’С‹РІРµРґРёС‚Рµ СЃРїРёСЃРѕРє СЂРµР№СЃРѕРІ flights СЃ СЂСѓСЃСЃРєРёРјРё РЅР°Р·РІР°РЅРёСЏРјРё РіРѕСЂРѕРґРѕРІ.
   
--- создаем и наполняем данными таблицы
+-- СЃРѕР·РґР°РµРј Рё РЅР°РїРѕР»РЅСЏРµРј РґР°РЅРЅС‹РјРё С‚Р°Р±Р»РёС†С‹
 DROP TABLE IF EXISTS flights;
 CREATE TABLE flights (
   id SERIAL PRIMARY KEY,
-  `from` VARCHAR(255) COMMENT 'Город отравления',
-  `to` VARCHAR(255) COMMENT 'Город прибытия'
-) COMMENT = 'Рейсы';
+  `from` VARCHAR(255) COMMENT 'Р“РѕСЂРѕРґ РѕС‚СЂР°РІР»РµРЅРёСЏ',
+  `to` VARCHAR(255) COMMENT 'Р“РѕСЂРѕРґ РїСЂРёР±С‹С‚РёСЏ'
+) COMMENT = 'Р РµР№СЃС‹';
 
 INSERT INTO flights (`from`, `to`) VALUES
 ('moscow', 'omsk'),
@@ -39,22 +39,22 @@ INSERT INTO flights (`from`, `to`) VALUES
 DROP TABLE IF EXISTS cities;
 CREATE TABLE cities (
   id SERIAL PRIMARY KEY,
-  label VARCHAR(255) COMMENT 'Код города',
-  name VARCHAR(255) COMMENT 'Название города'
-) COMMENT = 'Словарь городов';
+  label VARCHAR(255) COMMENT 'РљРѕРґ РіРѕСЂРѕРґР°',
+  name VARCHAR(255) COMMENT 'РќР°Р·РІР°РЅРёРµ РіРѕСЂРѕРґР°'
+) COMMENT = 'РЎР»РѕРІР°СЂСЊ РіРѕСЂРѕРґРѕРІ';
 
 INSERT INTO cities (label, name) VALUES
-('moscow', 'Москва'),
-('irkutsk', 'Иркутск'),
-('novgorod', 'Новгород'),
-('kazan', 'Казань'),
-('omsk', 'Омск');
+('moscow', 'РњРѕСЃРєРІР°'),
+('irkutsk', 'РСЂРєСѓС‚СЃРє'),
+('novgorod', 'РќРѕРІРіРѕСЂРѕРґ'),
+('kazan', 'РљР°Р·Р°РЅСЊ'),
+('omsk', 'РћРјСЃРє');
 
--- Запрос (Добавил сортировку)
+-- Р—Р°РїСЂРѕСЃ (Р”РѕР±Р°РІРёР» СЃРѕСЂС‚РёСЂРѕРІРєСѓ)
 SELECT
   FLIGHTS.ID,
-  CITIES_FROM.NAME AS `ИЗ ГОРОДА`,
-  CITIES_TO.NAME AS `В ГОРОД`
+  CITIES_FROM.NAME AS `РР— Р“РћР РћР”Рђ`,
+  CITIES_TO.NAME AS `Р’ Р“РћР РћР”`
 FROM FLIGHTS
   JOIN CITIES AS CITIES_FROM
     ON FLIGHTS.FROM = CITIES_FROM.LABEL
