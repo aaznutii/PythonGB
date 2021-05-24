@@ -1,0 +1,68 @@
+-- Индексы уже установленные в базе vk:
+
+-- |TABLE_NAME         |index_count|indexes                                                   |
+-- |-------------------|-----------|----------------------------------------------------------|
+-- |posts              |3          |posts_community_id_fk, posts_media_id_fk, posts_user_id_fk|
+-- |friendship         |2          |friendship_friend_id_fk, friendship_status_id_fk          |
+-- |media              |2          |media_types_type_id_fk, media_user_id_fk                  |
+-- |messages           |2          |messages_from_user_id_fk, messages_to_user_id_fk          |
+-- |users              |2          |email, phone                                              |
+-- |cities             |1          |cities_country_id_fk                                      |
+-- |communities        |1          |name                                                      |
+-- |communities_users  |1          |communities_users_user_id_fk                              |
+-- |friendship_statuses|1          |name                                                      |
+-- |likes              |1          |likes_user_id_fk                                          |
+-- |media_types        |1          |name                                                      |
+-- |profiles           |1          |profiles_city_id_fk                                       |
+
+
+-- индексы получены запросом:
+
+SELECT TABLE_NAME,
+       COUNT(1) index_count,
+       GROUP_CONCAT(DISTINCT(index_name) SEPARATOR ', ') indexes
+FROM INFORMATION_SCHEMA.STATISTICS
+WHERE TABLE_SCHEMA = 'vk'
+      AND INDEX_NAME != 'primary'
+GROUP BY TABLE_NAME
+ORDER BY COUNT(1) DESC;
+
+-- Необходимо добвить индексы к следующим столбцам: 
+-- составной индекс по имени и фамилии.
+CREATE INDEX users_first_name_last_name_idx ON users(first_name, last_name);
+
+-- индекс для дней рождения и пола (хотя последнее, возможно избыточно)
+CREATE INDEX profiles_birthday_idx ON profiles(birthday);
+CREATE INDEX profiles_gender_idx ON profiles(gender);
+
+-- индекс для стран
+CREATE INDEX countries_name_idx ON countries(name);
+
+-- индекс для выжных и просмотренных сообщений:
+CREATE INDEX messages_is_important_idx ON messages(is_important);
+CREATE INDEX messages_is_delivered_idx ON messages(is_delivered);
+
+-- индекс для имен файлов в медиа:
+CREATE INDEX media_filename_idx ON media(filename);
+
+-- индекс для заголовков постов:
+CREATE INDEX posts_head_idx ON posts(head);
+
+-- Итоговые данные по индексам:
+
+-- |TABLE_NAME         |index_count|indexes                                                                                               |
+-- |-------------------|-----------|------------------------------------------------------------------------------------------------------|
+-- |messages           |4          |messages_from_user_id_fk, messages_is_delivered_idx, messages_is_important_idx, messages_to_user_id_fk|
+-- |posts              |4          |posts_community_id_fk, posts_head_idx, posts_media_id_fk, posts_user_id_fk                            |
+-- |users              |4          |email, phone, users_first_name_last_name_idx                                                          |
+-- |media              |3          |media_filename_idx, media_types_type_id_fk, media_user_id_fk                                          |
+-- |profiles           |3          |profiles_birthday_idx, profiles_city_id_fk, profiles_gender_idx                                       |
+-- |friendship         |2          |friendship_friend_id_fk, friendship_status_id_fk                                                      |
+-- |cities             |1          |cities_country_id_fk                                                                                  |
+-- |communities        |1          |name                                                                                                  |
+-- |communities_users  |1          |communities_users_user_id_fk                                                                          |
+-- |countries          |1          |countries_name_idx                                                                                    |
+-- |friendship_statuses|1          |name                                                                                                  |
+-- |likes              |1          |likes_user_id_fk                                                                                      |
+-- |media_types        |1          |name                                                                                                  |
+
