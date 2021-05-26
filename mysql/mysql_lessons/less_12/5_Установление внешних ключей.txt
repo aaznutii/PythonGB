@@ -1,0 +1,116 @@
+
+-- Установление внешнего ключа для таблицы  CITIES
+ALTER TABLE 
+  CITIES 
+ADD CONSTRAINT 
+  cities_countries_id_fk
+FOREIGN KEY (country_id) REFERENCES countries(id) ON DELETE CASCADE,
+ADD CONSTRAINT 
+  cities_region_id_fk
+FOREIGN KEY (region_id) REFERENCES region(id) ON DELETE CASCADE;
+
+-- Правим название столбца ADDRESS
+ALTER TABLE ADDRESS RENAME COLUMN sity_id TO city_id;
+DESC ADDRESS;
+
+
+-- Установление внешнего ключа для таблицы  ADDRESS
+ALTER TABLE 
+  ADDRESS 
+ADD CONSTRAINT address_countries_id_fk
+FOREIGN KEY (country_id) REFERENCES countries(id) ON DELETE CASCADE,
+ADD CONSTRAINT address_region_id_fk
+FOREIGN KEY (region_id) REFERENCES region(id) ON DELETE CASCADE;
+
+
+SELECT * FROM ADDRESS;
+SELECT * FROM CITIES;
+UPDATE ADDRESS SET city_id = 1 WHERE city_id = 0;
+ALTER TABLE 
+  ADDRESS
+ADD CONSTRAINT address_cities_id_fk
+FOREIGN KEY (city_id) REFERENCES cities(id) ON DELETE CASCADE;
+
+-- Установление внешнего ключа для таблицы  programs
+DESC PROGRAMS;
+ALTER TABLE 
+  PROGRAMS 
+ADD CONSTRAINT programs_prof_area_id_fk
+FOREIGN KEY (prof_area_id) REFERENCES prof_area(id) ON DELETE SET NULL,
+ADD CONSTRAINT programs_teachers_id_fk
+FOREIGN KEY (meneger_id) REFERENCES teachers(id) ON DELETE SET NULL;
+
+-- Установление внешнего ключа для таблицы  учебных групп
+DESC EDUCATIONAL_GROUPS;
+ALTER TABLE 
+  EDUCATIONAL_GROUPS 
+ADD CONSTRAINT educational_groups_programs_id_fk
+FOREIGN KEY (programs_id) REFERENCES programs(id) ON DELETE SET NULL;
+
+
+-- Установление внешнего ключа для таблицы students
+DESC STUDENTS;
+ALTER TABLE 
+  STUDENTS 
+ADD CONSTRAINT students_educational_groups_id_fk
+FOREIGN KEY (educational_groups_id) REFERENCES educational_groups(id) ON DELETE SET NULL,
+ADD CONSTRAINT students_contracts_id_fk
+FOREIGN KEY (contract_id) REFERENCES contracts(id) ON DELETE SET NULL;
+
+-- Установление внешнего ключа для таблицы profiles_students
+DESC PROFILES_STUDENTS;
+ALTER TABLE 
+  PROFILES_STUDENTS 
+ADD CONSTRAINT profiles_students_students_id_fk
+FOREIGN KEY (students_id) REFERENCES students(id) ON DELETE CASCADE,
+ADD CONSTRAINT profiles_students_address_id_fk
+FOREIGN KEY (address_id) REFERENCES address(id) ON DELETE SET NULL;
+
+
+-- Установление внешнего ключа для таблицы CONTRAGENTS_ORGANIZATIONS
+DESC CONTRAGENTS_ORGANIZATIONS;
+ALTER TABLE 
+  CONTRAGENTS_ORGANIZATIONS 
+ADD CONSTRAINT contragents_organization_address_id_fk
+FOREIGN KEY (address_id) REFERENCES address(id) ON DELETE SET NULL;
+
+-- Установление внешнего ключа для таблицы CONTRAGENTS_ORGANIZATIONS
+DESC CONTRAGENTS_persons;
+ALTER TABLE 
+  CONTRAGENTS_PERSONS 
+ADD CONSTRAINT contragents_persons_address_id_fk
+FOREIGN KEY (address_id) REFERENCES address(id) ON DELETE SET NULL;
+
+
+-- Установление внешнего ключа для таблицы PREVIOUS_EDUCATION
+ALTER TABLE 
+  PREVIOUS_EDUCATION 
+ADD CONSTRAINT prevous_education_students_id_fk
+FOREIGN KEY (students_id) REFERENCES students(id) ON DELETE CASCADE;
+
+-- Установление внешнего ключа для таблицы contracts
+
+-- Правим тип столбца department_id
+ALTER TABLE contracts MODIFY COLUMN department_id Int UNSIGNED;
+
+ALTER TABLE 
+  contracts 
+ADD CONSTRAINT contracts_contragents_id_fk
+FOREIGN KEY (contragents_id) REFERENCES contragents(id) ON DELETE SET NULL,
+ADD CONSTRAINT contracts_departments_id_fk
+FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE CASCADE;
+
+
+-- Установление внешнего ключа для таблицы PAYMENTS
+-- Правим название столбца ADDRESS
+ALTER TABLE PAYMENTS RENAME COLUMN PROGRAMS_id TO programs_id;
+DESC PAYMENTS;
+
+ALTER TABLE 
+  PAYMENTS 
+ADD CONSTRAINT payments_contragents_id_fk
+FOREIGN KEY (contragents_id) REFERENCES contragents(id) ON DELETE SET NULL,
+ADD CONSTRAINT payments_programs_id_fk
+FOREIGN KEY (programs_id) REFERENCES programs(id) ON DELETE SET NULL,
+ADD CONSTRAINT payments_contracts_id_fk
+FOREIGN KEY (contracts_id) REFERENCES contracts(id) ON DELETE SET NULL;

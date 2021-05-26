@@ -1,0 +1,223 @@
+-- База данных института дополнительного образования
+
+-- Создаём таблицу обучающихся
+DROP TABLE IF EXISTS students;
+CREATE TABLE students (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT "Идентификатор строки", 
+  last_name VARCHAR(100) NOT NULL COMMENT "Фамилия обучающегося",  
+  first_name VARCHAR(100) NOT NULL COMMENT "Имя обучающегося",
+  patronymic VARCHAR(100) NOT NULL COMMENT "Отчество обучающегося",
+  email VARCHAR(100) NOT NULL UNIQUE COMMENT "Почта",
+  phone VARCHAR(100) NOT NULL UNIQUE COMMENT "Телефон",
+  snils VARCHAR(20) DEFAULT 'Null' COMMENT "СНИЛС обучающегося",
+  contract_id INT UNSIGNED COMMENT "Ссылка на договор об обучении",
+  educational_groups_id INT UNSIGNED COMMENT "Ссылка на учебную группу",
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT "Время создания строки",  
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT "Время обновления строки"
+) COMMENT "Обучающиеся";  
+
+
+-- Таблица профилей
+CREATE TABLE profiles_students (
+  students_id INT UNSIGNED NOT NULL PRIMARY KEY COMMENT "Ссылка на обучающегося", 
+  gender ENUM ('f', 'm') NOT NULL COMMENT "Пол",
+  birthday DATE COMMENT "Дата рождения",
+  address_id INT UNSIGNED COMMENT "Ссылка на id адреса",
+  citizenship VARCHAR(20) NOT NULL COMMENT "Гражданство обучающегося",
+  disabled BOOL DEFAULT 0 COMMENT "Ограниченные возможности здоровья",
+  legal_age BOOL DEFAULT 1 COMMENT "Совершеннолетие достигнуто",
+  condition_status ENUM ('Обучение', 'Академический отпуск', 'Отчислен') NOT NULL DEFAULT 'Обучение' COMMENT "Актуальное состояние",
+  prof_status ENUM ('Обучающийся', 'Работающий') NOT NULL COMMENT "Профессиональный статус",
+  place VARCHAR(50) NOT NULL COMMENT "Место работы/учебы",
+  change_last_name VARCHAR(100) COMMENT "Прошлая фамилия обучающегося",  
+  change_first_name VARCHAR(100) COMMENT "Прошлое имя обучающегося",
+  change_patronymic VARCHAR(100) COMMENT "Прошлое отчество обучающегося",
+  doc_change_name VARCHAR(100) COMMENT "Документ о смене фамилии/имени/отчества",
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT "Время создания строки",  
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT "Время обновления строки"
+) COMMENT "Профили"; 
+
+
+-- Таблица адресов
+CREATE TABLE address (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  country_id INT UNSIGNED NOT NULL COMMENT "Ссылка на id страны",
+  region_id INT UNSIGNED COMMENT "Ссылка на id региона",
+  sity_id INT UNSIGNED NOT NULL COMMENT "Ссылка на id города",
+  postcode INT UNSIGNED COMMENT "Почтовый индекс",
+  street VARCHAR(100) NOT NULL COMMENT "Улица",
+  building VARCHAR(10) NOT NULL COMMENT "Дом/строение",
+  flat_office INT UNSIGNED COMMENT "Квартира/ офис",
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT "Время создания строки",  
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT "Время обновления строки"
+) COMMENT "Адреса";
+  
+
+-- Таблица городов
+DROP TABLE IF EXISTS cities;
+CREATE TABLE cities (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(150) NOT NULL,
+  country_id INT UNSIGNED,
+  region_id INT UNSIGNED  
+);
+
+-- Таблица стран
+DROP TABLE IF EXISTS countries;
+CREATE TABLE countries (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(150) NOT NULL
+);
+
+-- Таблица областей
+CREATE TABLE region (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(150) NOT NULL
+);
+
+-- Таблица сведений об образовании
+CREATE TABLE previous_education (
+  students_id INT UNSIGNED NOT NULL PRIMARY KEY COMMENT "Ссылка на обучающегося",
+  university VARCHAR(250) NOT NULL COMMENT "Наименование университета",
+  document ENUM ('Диплом о высшем образовании', 
+        'Диплом о среднем профессиональном образовании', 
+        'Диплом о профессиональной переподготовке',
+        'Справка об обучении') NOT NULL COMMENT "Наименование документа",
+  doc_serias VARCHAR(10) NOT NULL COMMENT "Серия документа",
+  doc_number INT UNSIGNED COMMENT "Номер документа",
+  doc_date DATE COMMENT "Дата документа",
+  last_name_in_doc VARCHAR(100) NOT NULL COMMENT "Фамилия обучающегося в документе",
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT "Время создания строки",  
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT "Время обновления строки"
+) COMMENT "Сведения об образовании";
+  
+  -- Таблица Контракты
+DROP TABLE IF EXISTS contracts;
+  CREATE TABLE contracts (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  contragents_id INT UNSIGNED COMMENT "Ссылка на заказчика обучения",
+  department_id VARCHAR(10) COMMENT  "Код подразделения",
+  doc_number INT UNSIGNED NOT NULL COMMENT "Номер документа",
+  TYPE_program ENUM('ПП','ПК','С') COMMENT "Тип программы",
+  doc_date DATE COMMENT  "Дата документа",
+  other_doc_number VARCHAR(20) COMMENT "Номер договора, присвоенный другой организацией",
+  cost DECIMAL (11,2) COMMENT  "Стоимость договора",
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT "Время создания строки",  
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT "Время обновления строки"
+) COMMENT "Контракты";
+
+  -- Таблица подразделений
+  CREATE TABLE departments (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name varchar(150) COMMENT "Наименование подразделения",
+  short_name varchar(50) COMMENT "Краткое наименование подразделения",
+  manager varchar(50) COMMENT "руководитель подразделения"
+) COMMENT "Подразделения системы";
+  
+  -- Таблица контрагентов
+CREATE TABLE contragents (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT "Идентификатор строки", 
+  contragent_id INT UNSIGNED COMMENT "Ссылка на заказчика обучения (совместно с type_contragents)",
+  type_contragents ENUM ('contragents_persons', 'contragents_organizations'),
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT "Время создания строки",  
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT "Время обновления строки"
+) COMMENT "Заказчик обучения"; 
+
+  -- Таблица контрагентов - физических лиц
+CREATE TABLE contragents_persons (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT "Идентификатор строки", 
+  last_name VARCHAR(100) NOT NULL COMMENT "Фамилия заказчика",  
+  first_name VARCHAR(100) NOT NULL COMMENT "Имя заказчика",
+  patronymic VARCHAR(100) NOT NULL COMMENT "Отчество заказчика",
+  address_id INT UNSIGNED COMMENT "Ссылка на id адреса",
+  email VARCHAR(100) UNIQUE COMMENT "Почта",
+  phone VARCHAR(100) UNIQUE COMMENT "Телефон",
+  passport_seria VARCHAR(10) COMMENT "Серия паспорта",
+  passport_number VARCHAR(10) COMMENT "Номер паспорта",
+  passport_data DATE COMMENT "Дата выдачи паспорта",
+  passport_get_by VARCHAR(150) COMMENT "Кем выдан",
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT "Время создания строки",  
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT "Время обновления строки"
+) COMMENT "Таблица контрагентов - физических лиц";
+  
+    -- Таблица контрагентов - юридических лиц
+CREATE TABLE contragents_organizations (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT "Идентификатор строки",
+  organization_name VARCHAR(100) NOT NULL COMMENT "Наименование организации",
+  last_name VARCHAR(100) NOT NULL COMMENT "Фамилия руководителя",  
+  first_name VARCHAR(100) NOT NULL COMMENT "Имя руководителя",
+  patronymic VARCHAR(100) NOT NULL COMMENT "Отчество руководителя",
+  basis_of_activity VARCHAR(100) COMMENT "Основание деятельности",
+  address_id INT UNSIGNED COMMENT "Ссылка на id адреса",
+  email VARCHAR(100) UNIQUE COMMENT "Почта",
+  phone VARCHAR(100) UNIQUE COMMENT "Телефон",
+  inn INT UNSIGNED COMMENT "Индивидуальный налоговый номер",
+  kpp INT UNSIGNED COMMENT "КПП",
+  payment_account INT UNSIGNED COMMENT "Расчетный счет",
+  correspondent_account INT UNSIGNED COMMENT "Корреспондентский счет",
+  bank VARCHAR(150) COMMENT "Банк",
+  bik INT UNSIGNED COMMENT "БИК",
+  other_datails VARCHAR(250) COMMENT "Иные реквизиты",
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT "Время создания строки",  
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT "Время обновления строки"
+) COMMENT "Таблица контрагентов - юридических лиц";
+
+
+  -- Таблица Сотрудников
+CREATE TABLE teachers (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT "Идентификатор строки", 
+  last_name VARCHAR(100) NOT NULL COMMENT "Фамилия",  
+  first_name VARCHAR(100) NOT NULL COMMENT "Имя",
+  patronymic VARCHAR(100) NOT NULL COMMENT "Отчество",
+  email VARCHAR(100) UNIQUE COMMENT "Почта",
+  phone VARCHAR(100) UNIQUE COMMENT "Телефон",
+  department VARCHAR(100) COMMENT "подразделение университета",
+  meneger BOOL DEFAULT 1 NOT NULL COMMENT "Руководитель программ дополнительного образования",
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT "Время создания строки",  
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT "Время обновления строки"
+) COMMENT "Таблица контрагентов - физических лиц";
+  
+ -- Таблица образовательных программ
+DROP TABLE IF EXISTS programs;
+CREATE TABLE programs (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT "Идентификатор строки",
+  name VARCHAR(100) NOT NULL COMMENT "Наименование программы",
+  TYPE_program ENUM('ПП','ПК','С') COMMENT "Тип программы",
+  labor_intensity INT UNSIGNED COMMENT "Трудоемкость (в часах)",
+  mode_of_study ENUM('Очное', 'Очно-заочное', 'Заочное') DEFAULT 'Очно-заочное' COMMENT "Форма обучения",
+  on_line BOOL DEFAULT 1 COMMENT "С использованием дистанционных образовательных технологий",
+  meneger_id INT UNSIGNED COMMENT "Руководитель, ссылка на id таблицы сотрудников",
+  prof_area_id INT UNSIGNED COMMENT "Ссылка на id таблицы профессиональных областей",
+  cost DECIMAL (11,2) COMMENT  "Стоимость программы",
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT "Время создания строки",  
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT "Время обновления строки"
+) COMMENT "Таблица образовательных программ";
+
+  
+-- Таблица Профессиональные области
+CREATE TABLE prof_area (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT "Идентификатор строки",
+  name VARCHAR(100) NOT NULL COMMENT "Наименование профессиональной области",
+  code varchar(20) NOT NULL COMMENT "Код профессиональной области"
+) COMMENT "Таблица Профессиональные области";
+
+-- Таблица образовательных групп
+CREATE TABLE educational_groups (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT "Идентификатор строки",
+  name VARCHAR(20) NOT NULL COMMENT "Наименование учебной группы",
+  PROGRAMS_id INT UNSIGNED COMMENT "Ссылка на id таблицы программ",
+  beginning Date  COMMENT "Начало обучения группы по программе",
+  completion Date  COMMENT "Завершение обучения группы по программе",
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT "Время создания строки",  
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT "Время обновления строки"
+) COMMENT "Таблица образовательных программ";
+
+CREATE TABLE payments (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT "Идентификатор строки",
+  contragents_id INT UNSIGNED COMMENT "Ссылка на id таблицы contragents",
+  PROGRAMS_id INT UNSIGNED COMMENT "Ссылка на id таблицы программ",
+  contracts_id INT UNSIGNED COMMENT "Ссылка на id таблицы контрактов",
+  payment DECIMAL (11,2) COMMENT "Ссылка на id таблицы контрактов",
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT "Время создания строки",
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT "Время обновления строки"
+) COMMENT "Таблица образовательных программ";

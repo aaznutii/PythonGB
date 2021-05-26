@@ -1,0 +1,72 @@
+-- Правка данных
+-- Правим данные таблицы обучающихся
+SELECT * FROM STUDENTS;
+UPDATE STUDENTS SET updated_at = NOW() WHERE updated_at < created_at;
+
+-- Правим данные таблицы адресов
+SELECT * FROM ADDRESS;
+UPDATE ADDRESS SET updated_at = NOW() WHERE updated_at < created_at;
+
+-- Правим данные таблицы контрактов
+SELECT * FROM CONTRACTS;
+UPDATE CONTRACTS SET updated_at = NOW() WHERE updated_at < created_at;
+
+-- Правим данные таблицы контрагентов
+SELECT * FROM CONTRAGENTS;
+UPDATE CONTRACTS SET updated_at = NOW() WHERE updated_at < created_at;
+
+-- Правим данные таблицы контрагентов- организаций
+SELECT * FROM CONTRAGENTS_ORGANIZATIONS;
+UPDATE CONTRAGENTS_ORGANIZATIONS SET updated_at = NOW() WHERE updated_at < created_at;
+UPDATE CONTRAGENTS_ORGANIZATIONS SET INN = FLOOR(4000000000 + RAND() * 356193);
+UPDATE CONTRAGENTS_ORGANIZATIONS SET kpp = FLOOR(4002060000 + RAND() * 356193);
+UPDATE CONTRAGENTS_ORGANIZATIONS SET payment_account = FLOOR(4032060000 + RAND() * 356193);
+UPDATE CONTRAGENTS_ORGANIZATIONS SET CORRESPONDENT_ACCOUNT = FLOOR(4232060000 + RAND() * 356193);
+
+-- Предполагается хранение номеров документов и их дат, потому без подробностей
+CREATE TEMPORARY TABLE activity (name VARCHAR(20));
+INSERT INTO activity VALUES ('Приказ'), ('Устав'), ('Доверенность');
+SELECT * FROM activity;
+UPDATE CONTRAGENTS_ORGANIZATIONS SET BASIS_OF_ACTIVITY = (
+    SELECT name FROM activity ORDER BY RAND() LIMIT 1
+);
+
+-- Правим данные таблицы контрагентов - ФИЗИЧЕСКИХ ЛИЦ
+SELECT * FROM CONTRAGENTS_PERSONS;
+UPDATE CONTRAGENTS_PERSONS SET updated_at = NOW() WHERE updated_at < created_at;
+
+-- Правим данные таблицы учебных групп
+SELECT * FROM EDUCATIONAL_GROUPS;
+UPDATE EDUCATIONAL_GROUPS SET BEGINNING = ADDDATE(updated_at, INTERVAL 35 DAY) WHERE BEGINNING < updated_at;
+UPDATE EDUCATIONAL_GROUPS SET completion = NOW() WHERE completion < BEGINNING;
+
+-- Правим данные таблицы payments
+SELECT * FROM PAYMENTS;
+UPDATE PAYMENTS SET updated_at = NOW() WHERE updated_at < created_at;
+UPDATE PAYMENTS SET contragents_id = FLOOR(1 + RAND() * 100);
+
+-- Правим данные таблицы PREVIOUS_EDUCATION
+SELECT * FROM PREVIOUS_EDUCATION;
+UPDATE PREVIOUS_EDUCATION SET DOC_DATE = ADDDATE(CREATED_AT, INTERVAL 10 DAY) WHERE DOC_DATE < created_at;
+UPDATE PREVIOUS_EDUCATION SET updated_at = NOW() WHERE updated_at < created_at;
+
+-- Правим данные таблицы PROFILES_STUDENTS
+SELECT * FROM PROFILES_STUDENTS;
+UPDATE PROFILES_STUDENTS 
+    SET birthday = ADDDATE(CREATED_AT, INTERVAL - 18 YEAR) 
+    WHERE created_at < birthday 
+    OR ADDDATE(CREATED_AT, INTERVAL - 18 YEAR) < birthday;
+UPDATE PROFILES_STUDENTS SET updated_at = NOW() WHERE updated_at < created_at;
+
+
+-- Правим данные таблицы PROGRAMS
+SELECT * FROM PROGRAMS;
+UPDATE PROGRAMS SET updated_at = NOW() WHERE updated_at < created_at;
+
+-- Правим данные таблицы STUDENTS
+SELECT * FROM STUDENTS;
+UPDATE STUDENTS SET updated_at = NOW() WHERE updated_at < created_at;
+
+-- Правим данные таблицы TEACHERS
+SELECT * FROM TEACHERS;
+UPDATE TEACHERS SET updated_at = NOW() WHERE updated_at < created_at;
