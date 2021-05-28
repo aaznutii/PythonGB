@@ -70,3 +70,44 @@ UPDATE STUDENTS SET updated_at = NOW() WHERE updated_at < created_at;
 -- Правим данные таблицы TEACHERS
 SELECT * FROM TEACHERS;
 UPDATE TEACHERS SET updated_at = NOW() WHERE updated_at < created_at;
+
+
+
+
+-- Вводим столбец для привязки тригера, формирующего полное имя договора  в таблице CONTRACTS
+ALTER TABLE CONTRACTS ADD full_number varchar(20);
+
+UPDATE CONTRACTS SET full_number = CONCAT_WS(
+'-', type_program, doc_number, (SELECT short_name FROM departments 
+                                WHERE id = CONTRACTS.department_id));
+
+-- Правим таблицу PREVIOUS_EDUCATION, students, COUNTRIES, CONTRACTS
+ALTER TABLE PREVIOUS_EDUCATION 
+    MODIFY COLUMN university varchar(250) DEFAULT 'Наименование университета' NOT NULL, 
+    MODIFY COLUMN document enum(
+      'Диплом о высшем образовании',
+      'Диплом о среднем профессиональном образовании',
+      'Диплом о профессиональной переподготовке', 
+      'Справка об обучении')
+      DEFAULT 'Диплом о высшем образовании' NOT NULL;
+  
+ALTER TABLE PREVIOUS_EDUCATION 
+      MODIFY COLUMN doc_serias varchar(20), 
+      MODIFY COLUMN last_name_in_doc varchar(100);
+
+ALTER TABLE students 
+      MODIFY COLUMN patronymic varchar(100), 
+      MODIFY COLUMN email varchar(100),
+      MODIFY COLUMN phone varchar(100);
+
+ALTER TABLE COUNTRIES 
+    ADD full_name_ru varchar(250),
+    ADD name_eng varchar(250),
+    ADD alfa2 varchar(2),
+    ADD alfa3 varchar(3),
+    ADD iso int UNSIGNED,
+    ADD part_of_the_world varchar(250),
+    ADD place varchar(200);
+
+ALTER TABLE CONTRACTS 
+    ADD paid_in_totall decimal(11,2);

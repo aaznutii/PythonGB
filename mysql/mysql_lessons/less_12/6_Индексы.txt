@@ -1,0 +1,85 @@
+-- Правка имен столбцов и типов данных
+ALTER TABLE contracts RENAME COLUMN TYPE_program TO type_program;
+ALTER TABLE PROGRAMS RENAME COLUMN TYPE_program TO type_program;
+ALTER TABLE educational_groups RENAME COLUMN PROGRAMS_id TO programs_id;
+ALTER TABLE educational_groups MODIFY COLUMN name varchar(50);
+-- Индексы уже установленные в базе ido:
+
+/*
+|TABLE_NAME               |index_count|indexes                                                                      |
+|-------------------------|-----------|-----------------------------------------------------------------------------|
+|students                 |4          |email, phone, students_contracts_id_fk, students_educational_groups_id_fk    |
+|address                  |3          |address_cities_id_fk, address_countries_id_fk, address_region_id_fk          |
+|contragents_organizations|3          |contragents_organization_address_id_fk, email, phone                         |
+|contragents_persons      |3          |contragents_persons_address_id_fk, email, phone                              |
+|payments                 |3          |payments_contracts_id_fk, payments_contragents_id_fk, payments_programs_id_fk|
+|cities                   |2          |cities_countries_id_fk, cities_region_id_fk                                  |
+|contracts                |2          |contracts_contragents_id_fk, contracts_departments_id_fk                     |
+|programs                 |2          |programs_prof_area_id_fk, programs_teachers_id_fk                            |
+|teachers                 |2          |email, phone                                                                 |
+|educational_groups       |1          |educational_groups_programs_id_fk                                            |
+|profiles_students        |1          |profiles_students_address_id_fk                                              |
+
+ */
+
+-- индексы получены запросом:
+
+SELECT TABLE_NAME,
+       COUNT(1) index_count,
+       GROUP_CONCAT(DISTINCT(index_name) SEPARATOR ', ') indexes
+FROM INFORMATION_SCHEMA.STATISTICS
+WHERE TABLE_SCHEMA = 'ido'
+      AND INDEX_NAME != 'primary'
+GROUP BY TABLE_NAME
+ORDER BY COUNT(1) DESC;
+
+-- Необходимо добвить индексы к следующим столбцам: 
+-- составной индекс по имени и фамилии  и отчеству для таблицы students.
+CREATE INDEX students_first_name_last_name_patronymic_idx ON students(first_name, last_name, patronymic);
+
+-- составной индекс по имени и фамилии  и отчеству для таблицы contragents_persons.
+CREATE INDEX contragents_persons_first_name_last_name_patronymic_idx ON contragents_persons(first_name, last_name, patronymic);
+CREATE INDEX contragents_persons_passport_seria_passport_number_idx ON contragents_persons(passport_seria, passport_number);
+
+-- составной индекс по имени и фамилии  и отчеству для таблицы teachers.
+CREATE INDEX teachers_first_name_last_name_patronymic_idx ON teachers(first_name, last_name, patronymic);
+
+-- индекс для contragents_organizations
+CREATE INDEX contragents_organizations_organization_name_idx ON contragents_organizations(organization_name);
+
+-- индекс payments
+CREATE INDEX payments_payment_idx ON payments(payment);
+
+
+-- индекс для contracts:
+CREATE INDEX contracts_doc_number_idx ON contracts(doc_number);
+CREATE INDEX contracts_other_doc_number_idx ON contracts(other_doc_number);
+CREATE INDEX contracts_cost_idx ON contracts(cost);
+
+-- индекс для programs:
+CREATE INDEX programs_name_idx ON programs(name);
+
+-- индекс для educational_groups:
+CREATE INDEX educational_groups_name_idx ON educational_groups(name);
+
+-- Итоговые данные по индексам:
+
+/*
+|TABLE_NAME               |index_count|indexes                                                                                                                                                         |
+|-------------------------|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|contragents_persons      |8          |contragents_persons_address_id_fk, contragents_persons_first_name_last_name_patronymic_idx, contragents_persons_passport_seria_passport_number_idx, email, phone|
+|students                 |7          |email, phone, students_contracts_id_fk, students_educational_groups_id_fk, students_first_name_last_name_patronymic_idx                                         |
+|contracts                |5          |contracts_contragents_id_fk, contracts_cost_idx, contracts_departments_id_fk, contracts_doc_number_idx, contracts_other_doc_number_idx                          |
+|teachers                 |5          |email, phone, teachers_first_name_last_name_patronymic_idx                                                                                                      |
+|contragents_organizations|4          |contragents_organization_address_id_fk, contragents_organizations_organization_name_idx, email, phone                                                           |
+|address                  |3          |address_cities_id_fk, address_countries_id_fk, address_region_id_fk                                                                                             |
+|payments                 |3          |payments_contracts_id_fk, payments_contragents_id_fk, payments_programs_id_fk                                                                                   |
+|cities                   |2          |cities_countries_id_fk, cities_region_id_fk                                                                                                                     |
+|programs                 |2          |programs_prof_area_id_fk, programs_teachers_id_fk                                                                                                               |
+|educational_groups       |1          |educational_groups_programs_id_fk                                                                                                                               |
+|profiles_students        |1          |profiles_students_address_id_fk                                                                                                                                 |
+*/
+
+SHOW tables;
+DESC contragents;
+SELECT * FROM contragents;

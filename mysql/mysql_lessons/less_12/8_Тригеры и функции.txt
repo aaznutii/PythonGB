@@ -1,0 +1,87 @@
+
+
+
+-- Эмуляция внешнего ключа для полей contragent_id, contragent_id таблицы contragent
+-- создание функции для проверки  содержания type_contragents
+
+DROP FUNCTION IF EXISTS is_row_exists;
+DELIMITER //
+
+CREATE FUNCTION is_row_exists (contragent_id INT, type_contragents VARCHAR(50))
+RETURNS BOOLEAN READS SQL DATA
+
+BEGIN
+  CASE type_contragents
+    WHEN 'contragents_persons' THEN
+      RETURN EXISTS(SELECT 1 FROM contragents_persons WHERE id = contragent_id);
+    WHEN 'contragents_organizations' THEN 
+      RETURN EXISTS(SELECT 1 FROM contragents_organizations WHERE id = contragent_id);
+      RETURN FALSE;
+  END CASE;
+END//
+
+DELIMITER ;
+
+SELECT is_row_exists(1, 'contragents_organizations');
+
+-- Создадим триггер для проверки валидности contragent_id и type_contragents
+ 
+DROP TRIGGER IF EXISTS contragents_validation;
+
+DELIMITER //
+
+CREATE TRIGGER contragents_validation BEFORE INSERT ON contragents
+
+FOR EACH ROW BEGIN
+  IF NOT is_row_exists(NEW.contragent_id, NEW.type_contragents) THEN
+    SIGNAL SQLSTATE "45000"
+    SET MESSAGE_TEXT = "Error adding contragent! Target table doesn't contain row id provided!";
+  END IF;
+END//
+
+DELIMITER ;
+
+-- Создаем тригер для автозаполнения столба full_number
+DROP TRIGGER IF EXISTS insert_full_number;
+
+DELIMITER //
+CREATE TRIGGER insert_full_number BEFORE INSERT ON CONTRACTS
+FOR EACH ROW BEGIN
+    SET NEW.full_number = CONCAT_WS('-', NEW.type_program, NEW.doc_number, NEW.department_id);
+END//
+
+DELIMITER ;
+
+
+-- Создаем тригер для автоматического создания записи в таблице previous_education после создания записи в students
+DELIMITER //
+CREATE TRIGGER creat_previous_education AFTER INSERT ON students
+FOR EACH ROW BEGIN 
+    INSERT INTO PREVIOUS_EDUCATION(students_id) VALUES (NEW.id) ;
+END//
+
+DELIMITER ;
+
+
+
+-- проверка
+INSERT INTO STUDENTS (last_name, first_name, patronymic, email, phone, snils, contract_id, educational_groups_id)
+VALUES ('Ивнов', 'Иван', 'Иванович', 'ivanov@example.ru', '+7988 00 00', '145-7825-256-08', 26, 15);
+
+SELECT * FROM PREVIOUS_EDUCATION WHERE STUDENTS_ID = (SELECT STUDENTS.ID FROM STUDENTS WHERE last_name = 'Ивнов');
+
+-- создание функции для суммирования оплат по контрагенту
+DESC PAYMENTS ;
+DESC CONTRACTS ;
+
+
+DELIMITER //
+CREATE TRIGGER get_totall_paid AFTER INSERT ON PAYMENTS
+FOR EACH ROW BEGIN 
+    UPDATE CONTRACTS SET paid_in_totall = SUM(PAYMENTS.payment) 
+    WHERE NEW.CONTRACTS_ID = CONTRACTS.ID;
+END//
+
+DELIMITER ;
+             
+INSERT INTO 
