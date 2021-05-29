@@ -19,6 +19,7 @@ con = mysql.connector.connect(user='root', passwd=passw, database='ido')
 engine = create_engine(f'mysql://root:{passw}@localhost/ido?charset=utf8', echo=True)
 
 # Записать датафрейм в базу поверх данных с заменой (replace). Можно писать в конец имеющейся таблицы ('append')
+# index=False - признак того, что индекс не участвует в качестве данных.
 df.to_sql('countries', con=engine, if_exists='append', index=False)
 
 # Получение данных запросом и печать - контроль данных

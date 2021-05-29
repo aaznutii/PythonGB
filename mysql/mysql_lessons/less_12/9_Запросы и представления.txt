@@ -1,0 +1,52 @@
+SHOW tables
+-- Представления
+
+-- Просмотр состава групп
+CREATE OR REPLACE VIEW show_groups (stud, group_num, progr_id)
+AS SELECT CONCAT_WS(' ', FIRST_NAME, LAST_NAME, PATRONYMIC), 
+EG.NAME, EG.ID AS progr_id
+FROM 
+STUDENTS S
+LEFT JOIN EDUCATIONAL_GROUPS EG ON S.EDUCATIONAL_GROUPS_ID = EG.ID
+ORDER BY EG.NAME DESC;
+
+-- Просмотр сведений об оплате
+CREATE OR REPLACE VIEW show_money 
+AS SELECT 
+contracts.FULL_NUMBER, contracts.DOC_DATE,  
+P.PAYMENT AS payment, P.CREATED_AT AS pay_date,
+D.SHORT_NAME AS Deartment,
+PR.NAME AS programs, PR.TYPE_PROGRAM AS typ,
+get_contragent(C.contragent_id, C.TYPE_CONTRAGENTS) AS CONTRAGENT
+FROM 
+contracts
+LEFT JOIN payments P ON contracts.ID = P.CONTRACTS_ID 
+LEFT JOIN DEPARTMENTS D ON D.ID = contracts.DEPARTMENT_ID
+LEFT JOIN programs PR ON PR.ID = P.PROGRAMS_ID
+LEFT JOIN contragents C ON C.ID = contracts.CONTRAGENTS_ID;
+
+
+
+-- Запросы
+
+-- Перечень групп с количеством обучающихся
+SELECT 
+  EG.NAME AS group_num,
+  COUNT(s.id) AS count_stud 
+FROM 
+STUDENTS S
+LEFT JOIN EDUCATIONAL_GROUPS EG ON S.EDUCATIONAL_GROUPS_ID = EG.ID
+GROUP BY EG.NAME
+ORDER BY count_stud DESC;
+
+-- Выбор конкретной группы
+
+SELECT stud, group_num, progr_id,
+P.NAME AS 'Программа', P.LABOR_INTENSITY AS 'часов', P.TYPE_PROGRAM AS 'тип'
+FROM show_groups 
+LEFT JOIN PROGRAMS P ON P.ID = progr_id 
+WHERE group_num = '98462' ORDER BY stud ASC;
+
+SELECT * FROM show_money;
+SELECT * FROM show_groups;
+      

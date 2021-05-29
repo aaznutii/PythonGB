@@ -1,7 +1,44 @@
+-- создание процедуры для внесения данных об обучающихся с разнесением по таблицам. Сводные данные загружаются из листа эксель и передаются программно в процедуру
 
+DROP PROCEDURE IF EXISTS insert_student;
+DESC PROFILES_STUDENTS ;
+DELIMITER //
+CREATE PROCEDURE insert_student(f_n varchar(100), l_n varchar(100), p varchar(100), mail varchar(100), phone varchar(100), snils varchar(20), 
+        gender varchar(2), bd date, address int unsigned, citizenship varchar(20), disabled tinyint(1), legal_age tinyint(1), condition_status varchar(20), 
+        prof_status varchar(20), place varchar(50), change_last_name varchar(100), change_first_name varchar(100), change_patronymic varchar(100), doc_change_name varchar(100))
+     begin
+        insert into STUDENTS (first_name, last_name, patronymic, email, phone, snils) 
+        values (f_n, l_n, p, mail, phone, snils);
+        insert into PROFILES_STUDENTS (gender, birthday, address_id, citizenship, disabled, legal_age, condition_status, 
+                    prof_status, place, change_last_name, change_first_name, change_patronymic, doc_change_name) 
+        values (gender, birthday, address_id, citizenship, disabled, legal_age, condition_status, 
+                prof_status, place, change_last_name, change_first_name, change_patronymic, doc_change_name);
+     end//
+DELIMITER ;
 
 
 -- Эмуляция внешнего ключа для полей contragent_id, contragent_id таблицы contragent
+-- создание функции для получения наименования контрагента
+
+DROP FUNCTION IF EXISTS get_contragent;
+
+DELIMITER //
+CREATE FUNCTION get_contragent (contragent_id INT, type_contragents VARCHAR(50))
+RETURNS VARCHAR(255) NOT DETERMINISTIC READS SQL DATA
+
+BEGIN
+  CASE type_contragents
+    WHEN 'contragents_persons' THEN
+      RETURN (SELECT CONCAT_WS(' ', FIRST_NAME, LAST_NAME, PATRONYMIC)  FROM contragents_persons WHERE id = contragent_id);
+    WHEN 'contragents_organizations' THEN 
+      RETURN (SELECT organization_name FROM contragents_organizations WHERE id = contragent_id);
+      RETURN FALSE;
+  END CASE;
+END//
+
+DELIMITER ;
+
+
 -- создание функции для проверки  содержания type_contragents
 
 DROP FUNCTION IF EXISTS is_row_exists;
@@ -63,17 +100,13 @@ END//
 DELIMITER ;
 
 
-
 -- проверка
 INSERT INTO STUDENTS (last_name, first_name, patronymic, email, phone, snils, contract_id, educational_groups_id)
 VALUES ('Ивнов', 'Иван', 'Иванович', 'ivanov@example.ru', '+7988 00 00', '145-7825-256-08', 26, 15);
 
 SELECT * FROM PREVIOUS_EDUCATION WHERE STUDENTS_ID = (SELECT STUDENTS.ID FROM STUDENTS WHERE last_name = 'Ивнов');
 
--- создание функции для суммирования оплат по контрагенту
-DESC PAYMENTS ;
-DESC CONTRACTS ;
-
+-- создание тригера для суммирования оплат по контрагенту и сохранения в столбец paid_in_totall
 
 DELIMITER //
 CREATE TRIGGER get_totall_paid AFTER INSERT ON PAYMENTS
@@ -84,4 +117,4 @@ END//
 
 DELIMITER ;
              
-INSERT INTO 
+
