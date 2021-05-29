@@ -12,11 +12,56 @@
 заказчик все равно будет фиксирован как отдельное лицо, поскольку его реквизиты указываются в договоре отдельно от обучающегося.
 4. База данных может быть существенно расширена, если включить сведения об оплатах и учебном процессе, 
 однако для всех включенных в базу сведений существуют и работают отдельные источники данных, с которыми может производиться обмен данными.
+Технически выделение некоторых сущностей представляется здесь избыточным (Например, банковские реквизиты).
 
 Вероятно, состав сущностей этой базы будет изменен в дальнейшем. 
 Ее конечная цель консолидировать информацию из разных источников, додополнив новыми полями, там где это необходимо, 
 стандартизировать данные и способы их внесения.
 
+В нынешнем состоянии база данных в себя включает:
 
+|Tables_in_ido            |
+|-------------------------|
+|address                  |
+|cities                   |
+|contracts                |
+|contragents              |
+|contragents_organizations|
+|contragents_persons      |
+|countries                |
+|departments              |
+|educational_groups       |
+|payments                 |
+|previous_education       |
+|prof_area                |
+|profiles_students        |
+|programs                 |
+|region                   |
+|show_group               |
+|show_groups              |
+|show_money               |
+|students                 |
+|teachers                 |
+
+/*
+|TABLE_NAME               |index_count|indexes                                                                                                                                                         |
+|-------------------------|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|contragents_persons      |8          |contragents_persons_address_id_fk, contragents_persons_first_name_last_name_patronymic_idx, contragents_persons_passport_seria_passport_number_idx, email, phone|
+|students                 |7          |email, phone, students_contracts_id_fk, students_educational_groups_id_fk, students_first_name_last_name_patronymic_idx                                         |
+|contracts                |5          |contracts_contragents_id_fk, contracts_cost_idx, contracts_departments_id_fk, contracts_doc_number_idx, contracts_other_doc_number_idx                          |
+|teachers                 |5          |email, phone, teachers_first_name_last_name_patronymic_idx                                                                                                      |
+|contragents_organizations|4          |contragents_organization_address_id_fk, contragents_organizations_organization_name_idx, email, phone                                                           |
+|address                  |3          |address_cities_id_fk, address_countries_id_fk, address_region_id_fk                                                                                             |
+|payments                 |3          |payments_contracts_id_fk, payments_contragents_id_fk, payments_programs_id_fk                                                                                   |
+|cities                   |2          |cities_countries_id_fk, cities_region_id_fk                                                                                                                     |
+|programs                 |2          |programs_prof_area_id_fk, programs_teachers_id_fk                                                                                                               |
+|educational_groups       |1          |educational_groups_programs_id_fk                                                                                                                               |
+|profiles_students        |1          |profiles_students_address_id_fk                                                                                                                                 |
+*/
+
+
+П.С. Для меня большая, но сыроватая работа. В части запросов и представлений работа должна быть доделана, однако отправляю пока как есть 
+в силу ограничений времени. Если у Вас будет возможность дать комментарий по структуре БД, буду весьма благодарен!
+Спасибо Вам за интересные занятия!
 
 
