@@ -7,12 +7,16 @@ import pandas as pd
 Код для импорта из таблицы эксель в БД
 """
 
-# Ввести пароль
-passw = input()
+# Ввести пользователя и пароль
+user = input('Введите пользователя: \n')
+passw = input('Введите пароль доступа: \n')
 
 # Получить данные файла
-file_name = input()
+file_name = input('Укажите полное имя файла: \n')
 df = pd.read_excel(str(file_name))
+
+# Ввести название целевой таблицы
+table = input('Введите название целевой таблицы: \n')
 
 # Создать соединение и указать кодировку
 con = mysql.connector.connect(user='root', passwd=passw, database='ido')

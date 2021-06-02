@@ -1,0 +1,47 @@
+/*
+ * 1. В таблице профилей студентов students_id INT - лучше student_id так как это ссылка на определённого студента.
+2. citizenship VARCHAR(20) - тоже просится в справочник, вообще можно тут использовать ссылку на страну.
+3. Плюс за использование ENUM.
+4. Часть таблиц именована в единственном, часть в множественном числе, лучше использовать единый стиль.
+5. contragents_id INT -> contragent_id, и везде в аналогичных случаях.
+6. type_contragents ENUM - возможно лучше contragent_type.
+7. PROGRAMS_id INT - другой стиль -> program_id INT, и везде в аналогичных случаях.
+8. Хорошее оформление проекта, только выкладывать нужно в кодировке utf-8 чтобы не было проблем с кириллицей.
+9. Адреса пожалуй можно не выносить в отдельную таблицу, повторяться они будут очень мало.
+10. Не совсем понятно зачем два раза приложили диаграмму отношений, более старый вариант лучше убрать.
+11. Процедура insert_student:
+values (f_n, l_n, p, - не сокращайте, делайте код более читаемым.
+12. Для кода запросов применяйте единый стиль использования верхнего регистра.
+В целом проект выполнен грамотно и на хорошем уровне.
+Серъёзных замечаний нет, но обратите внимание на стиль, код должен выглядеть профессионально.
+Очень хорошо!
+Пишите по всем вопросам, поздравляю с успешным завершением курса!
+ */
+
+ALTER TABLE PROFILES_STUDENTS RENAME COLUMN STUDENTS_ID TO STUDENT_ID;
+ALTER TABLE PREVIOUS_EDUCATION RENAME COLUMN STUDENTS_ID TO STUDENT_ID;
+ALTER TABLE STUDENTS RENAME COLUMN EDUCATIONAL_GROUPS_ID TO EDUCATIONAL_GROUP_ID;
+ALTER TABLE EDUCATIONAL_GROUPS RENAME COLUMN PROGRAMS_ID TO PROGRAM_ID;
+ALTER TABLE CONTRACTS RENAME COLUMN CONTRAGENTS_ID TO CONTRAGENT_ID;
+ALTER TABLE PAYMENTS RENAME COLUMN CONTRAGENTS_ID TO CONTRAGENT_ID;
+ALTER TABLE PAYMENTS RENAME COLUMN PROGRAMS_ID TO PROGRAM_ID;
+ALTER TABLE PAYMENTS RENAME COLUMN CONTRACTS_ID TO CONTRACT_ID;
+ALTER TABLE CONTRAGENTS RENAME COLUMN TYPE_CONTRAGENTS TO CONTRAGENT_TYPE;
+
+--  Внесены обновления в файлы:
+-- 5_Установление внешних ключей.txt
+-- 8_Тригеры и функции.txt
+-- 9_Запросы и представления.txt
+
+-- Заменен файл схемы: 7_Схема.png
+
+-- Добавлен файл для быстрой очистки ключей базы:
+-- 5_1_Удаление внешних ключей.txt
+
+    -- Запрос для формирования строк кода на удаление всех ключей
+SELECT CONCAT('ALTER TABLE `',TABLE_SCHEMA,'`.`',TABLE_NAME,'` DROP FOREIGN KEY ',CONSTRAINT_NAME,';')
+FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+WHERE CONSTRAINT_TYPE='FOREIGN KEY'
+AND TABLE_SCHEMA='IDO';
+
+

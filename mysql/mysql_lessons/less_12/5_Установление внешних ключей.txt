@@ -45,7 +45,7 @@ DESC EDUCATIONAL_GROUPS;
 ALTER TABLE 
   EDUCATIONAL_GROUPS 
 ADD CONSTRAINT educational_groups_programs_id_fk
-FOREIGN KEY (programs_id) REFERENCES programs(id) ON DELETE SET NULL;
+FOREIGN KEY (program_id) REFERENCES programs(id) ON DELETE SET NULL;
 
 
 -- Установление внешнего ключа для таблицы students
@@ -53,16 +53,27 @@ DESC STUDENTS;
 ALTER TABLE 
   STUDENTS 
 ADD CONSTRAINT students_educational_groups_id_fk
-FOREIGN KEY (educational_groups_id) REFERENCES educational_groups(id) ON DELETE SET NULL,
+FOREIGN KEY (educational_group_id) REFERENCES educational_groups(id) ON DELETE SET NULL,
 ADD CONSTRAINT students_contracts_id_fk
 FOREIGN KEY (contract_id) REFERENCES contracts(id) ON DELETE SET NULL;
 
 -- Установление внешнего ключа для таблицы profiles_students
-DESC PROFILES_STUDENTS;
+DESC PROFILES_STUDENTS; 
+DESC countries;
+
+ALTER TABLE countries MODIFY alfa3 varchar(10) NOT NULL;
+ALTER TABLE PROFILES_STUDENTS MODIFY citizenship varchar(10) DEFAULT 'RU' NOT NULL;
+UPDATE PROFILES_STUDENTS SET citizenship = (
+  SELECT alfa3 FROM countries ORDER BY RAND() LIMIT 1
+);
+
+
+SELECT * FROM PROFILES_STUDENTS;
+
 ALTER TABLE 
   PROFILES_STUDENTS 
-ADD CONSTRAINT profiles_students_students_id_fk
-FOREIGN KEY (students_id) REFERENCES students(id) ON DELETE CASCADE,
+ADD CONSTRAINT profiles_students_student_id_fk
+FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
 ADD CONSTRAINT profiles_students_address_id_fk
 FOREIGN KEY (address_id) REFERENCES address(id) ON DELETE SET NULL;
 
@@ -86,7 +97,7 @@ FOREIGN KEY (address_id) REFERENCES address(id) ON DELETE SET NULL;
 ALTER TABLE 
   PREVIOUS_EDUCATION 
 ADD CONSTRAINT prevous_education_students_id_fk
-FOREIGN KEY (students_id) REFERENCES students(id) ON DELETE CASCADE;
+FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE;
 
 -- Установление внешнего ключа для таблицы contracts
 
@@ -96,7 +107,7 @@ ALTER TABLE contracts MODIFY COLUMN department_id Int UNSIGNED;
 ALTER TABLE 
   contracts 
 ADD CONSTRAINT contracts_contragents_id_fk
-FOREIGN KEY (contragents_id) REFERENCES contragents(id) ON DELETE SET NULL,
+FOREIGN KEY (contragent_id) REFERENCES contragents(id) ON DELETE SET NULL,
 ADD CONSTRAINT contracts_departments_id_fk
 FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE CASCADE;
 
@@ -109,8 +120,10 @@ DESC PAYMENTS;
 ALTER TABLE 
   PAYMENTS 
 ADD CONSTRAINT payments_contragents_id_fk
-FOREIGN KEY (contragents_id) REFERENCES contragents(id) ON DELETE SET NULL,
+FOREIGN KEY (contragent_id) REFERENCES contragents(id) ON DELETE SET NULL,
 ADD CONSTRAINT payments_programs_id_fk
-FOREIGN KEY (programs_id) REFERENCES programs(id) ON DELETE SET NULL,
+FOREIGN KEY (program_id) REFERENCES programs(id) ON DELETE SET NULL,
 ADD CONSTRAINT payments_contracts_id_fk
-FOREIGN KEY (contracts_id) REFERENCES contracts(id) ON DELETE SET NULL;
+FOREIGN KEY (contract_id) REFERENCES contracts(id) ON DELETE SET NULL;
+
+

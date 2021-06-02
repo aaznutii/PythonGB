@@ -3,12 +3,12 @@
 DROP PROCEDURE IF EXISTS insert_student;
 DESC PROFILES_STUDENTS ;
 DELIMITER //
-CREATE PROCEDURE insert_student(f_n varchar(100), l_n varchar(100), p varchar(100), mail varchar(100), phone varchar(100), snils varchar(20), 
-        gender varchar(2), bd date, address int unsigned, citizenship varchar(20), disabled tinyint(1), legal_age tinyint(1), condition_status varchar(20), 
+CREATE PROCEDURE insert_student(first_name varchar(100), last_name varchar(100), patronymic varchar(100), mail varchar(100), phone varchar(100), snils varchar(20), 
+        gender varchar(2), birthday date, address int unsigned, citizenship varchar(20), disabled tinyint(1), legal_age tinyint(1), condition_status varchar(20), 
         prof_status varchar(20), place varchar(50), change_last_name varchar(100), change_first_name varchar(100), change_patronymic varchar(100), doc_change_name varchar(100))
      begin
         insert into STUDENTS (first_name, last_name, patronymic, email, phone, snils) 
-        values (f_n, l_n, p, mail, phone, snils);
+        values (first_name, first_name, patronymic, mail, phone, snils);
         insert into PROFILES_STUDENTS (gender, birthday, address_id, citizenship, disabled, legal_age, condition_status, 
                     prof_status, place, change_last_name, change_first_name, change_patronymic, doc_change_name) 
         values (gender, birthday, address_id, citizenship, disabled, legal_age, condition_status, 
@@ -23,11 +23,11 @@ DELIMITER ;
 DROP FUNCTION IF EXISTS get_contragent;
 
 DELIMITER //
-CREATE FUNCTION get_contragent (contragent_id INT, type_contragents VARCHAR(50))
+CREATE FUNCTION get_contragent (contragent_id INT, contragent_type VARCHAR(50))
 RETURNS VARCHAR(255) NOT DETERMINISTIC READS SQL DATA
 
 BEGIN
-  CASE type_contragents
+  CASE contragent_type
     WHEN 'contragents_persons' THEN
       RETURN (SELECT CONCAT_WS(' ', FIRST_NAME, LAST_NAME, PATRONYMIC)  FROM contragents_persons WHERE id = contragent_id);
     WHEN 'contragents_organizations' THEN 
@@ -44,11 +44,11 @@ DELIMITER ;
 DROP FUNCTION IF EXISTS is_row_exists;
 DELIMITER //
 
-CREATE FUNCTION is_row_exists (contragent_id INT, type_contragents VARCHAR(50))
+CREATE FUNCTION is_row_exists (contragent_id INT, contragent_type VARCHAR(50))
 RETURNS BOOLEAN READS SQL DATA
 
 BEGIN
-  CASE type_contragents
+  CASE contragent_type
     WHEN 'contragents_persons' THEN
       RETURN EXISTS(SELECT 1 FROM contragents_persons WHERE id = contragent_id);
     WHEN 'contragents_organizations' THEN 
@@ -70,7 +70,7 @@ DELIMITER //
 CREATE TRIGGER contragents_validation BEFORE INSERT ON contragents
 
 FOR EACH ROW BEGIN
-  IF NOT is_row_exists(NEW.contragent_id, NEW.type_contragents) THEN
+  IF NOT is_row_exists(NEW.contragent_id, NEW.contragent_type) THEN
     SIGNAL SQLSTATE "45000"
     SET MESSAGE_TEXT = "Error adding contragent! Target table doesn't contain row id provided!";
   END IF;
@@ -91,10 +91,12 @@ DELIMITER ;
 
 
 -- Создаем тригер для автоматического создания записи в таблице previous_education после создания записи в students
+DROP TRIGGER IF EXISTS creat_previous_education;
+
 DELIMITER //
 CREATE TRIGGER creat_previous_education AFTER INSERT ON students
 FOR EACH ROW BEGIN 
-    INSERT INTO PREVIOUS_EDUCATION(students_id) VALUES (NEW.id) ;
+    INSERT INTO PREVIOUS_EDUCATION(student_id) VALUES (NEW.id) ;
 END//
 
 DELIMITER ;
@@ -104,7 +106,7 @@ DELIMITER ;
 INSERT INTO STUDENTS (last_name, first_name, patronymic, email, phone, snils, contract_id, educational_groups_id)
 VALUES ('Ивнов', 'Иван', 'Иванович', 'ivanov@example.ru', '+7988 00 00', '145-7825-256-08', 26, 15);
 
-SELECT * FROM PREVIOUS_EDUCATION WHERE STUDENTS_ID = (SELECT STUDENTS.ID FROM STUDENTS WHERE last_name = 'Ивнов');
+SELECT * FROM PREVIOUS_EDUCATION WHERE STUDENT_ID = (SELECT STUDENTS.ID FROM STUDENTS WHERE last_name = 'Ивнов');
 
 -- создание тригера для суммирования оплат по контрагенту и сохранения в столбец paid_in_totall
 
